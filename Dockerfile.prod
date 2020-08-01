@@ -19,7 +19,7 @@ RUN go build -o main *.go
 FROM golang:1.13.12-alpine3.12
 
 WORKDIR /go/src
-COPY --from=builder /go/src/main/main ./main
+COPY --from=builder /go/src/ ./main
 
 RUN apk add bash
 
