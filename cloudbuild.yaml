@@ -5,6 +5,8 @@ steps:
       - build
       - -t
       - golang_image
+      - -f 
+      - Dockerfile.test
       - .
 
   - id: "Executando testes unitários"
