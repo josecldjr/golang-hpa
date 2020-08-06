@@ -1,4 +1,3 @@
-
 # BUILDER IMAGE
 FROM golang:1.13.12-alpine3.12 as builder
 
@@ -10,17 +9,13 @@ COPY . /go/src
 RUN export GOPATH=/go/src
 RUN export GOROOT=/go/src
 RUN apk add git
-# RUN apk add gcc
+RUN apk add gcc
 RUN go get github.com/gorilla/mux
 # RUN go install
-RUN go build -o main *.go
+RUN go build -o hello *.go
 
 # FINAL IMAGE
-FROM golang:1.13.12-alpine3.12
+FROM alpine:3.12
 
 WORKDIR /go/src
-COPY --from=builder /go/src/ ./main
-
-RUN apk add bash
-
-ENTRYPOINT [ "./main" ]
+COPY --from=builder /go/src/hello ./hello

@@ -1,0 +1,44 @@
+steps:
+  - id: "Fazendo build da imagem"
+    name: "gcr.io/cloud-builders/docker"
+    args: 
+      - build
+      - -t
+      - golang_image
+      - -f 
+      - Dockerfile.test
+      - .
+
+  - id: "Executando testes unitários"
+    name: "gcr.io/cloud-builders/docker"
+    args: 
+      - run
+      - golang_image
+      - "cd /go/src && go test"
+  
+  - id: "Construindo imagem de produção"
+    name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/app_go:$SHORT_SHA', '-f', 'Dockerfile.prod', '.']
+
+  - id: "push para repositório do GCP"
+    name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/app_go:$SHORT_SHA']
+
+  - id: "Gerando deployment file"
+    name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: '/bin/sh'
+    args: 
+      - '-c'
+      - |
+        sed 's#app_go#gcr.io/$PROJECT_ID/app_go:$SHORT_SHA#g' k8s/deployment.yaml > k8s/deployment-new.yaml;
+        cat k8s/deployment-new.yaml;
+
+  - id: "Fazendo deploy no kubernetes"
+    name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - 'apply'
+      - '-f'
+      - 'k8s/deployment-new.yaml'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=cluster-2'

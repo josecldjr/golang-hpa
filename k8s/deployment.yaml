@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: go-hpa
-          image: josecjr/go-hpa
+          image: app_go
           ports:
            - containerPort: 80
           resources:
