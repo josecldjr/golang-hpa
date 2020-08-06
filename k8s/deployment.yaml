@@ -15,7 +15,7 @@ spec:
       containers:
         - name: go-hpa
           image: app_go
-          entrypoint: './hello'
+          command: ['./hello']
           ports:
            - containerPort: 80
           resources:
